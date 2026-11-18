@@ -1,0 +1,97 @@
+@base = http://localhost:8080
+@user = admin
+@password = Admin123!
+@csrf = PASTE_CSRF_TOKEN
+@bookId = 1
+@auditId = 1
+@readerToken = PASTE_READER_JWT
+@editorToken = PASTE_EDITOR_JWT
+@adminToken = PASTE_ADMIN_JWT
+# Keep cookies enabled. Update bookId from the POST response.
+
+### Login reader [200]
+POST {{base}}/auth/token
+Content-Type: application/json
+
+{"username":"reader","password":"Reader123!"}
+
+### Login editor [200]
+POST {{base}}/auth/token
+Content-Type: application/json
+
+{"username":"editor","password":"Editor123!"}
+
+### Login admin [200]
+POST {{base}}/auth/token
+Content-Type: application/json
+
+{"username":"admin","password":"Admin123!"}
+
+### 01 Reader list [200]
+GET {{base}}/api/books
+Authorization: Bearer {{readerToken}}
+
+### 02 Reader create denied [403]
+POST {{base}}/api/books
+Authorization: Bearer {{readerToken}}
+Content-Type: application/json
+
+{"title":"Clean Code","author":"Robert Martin"}
+
+### 03 Editor create [201]
+POST {{base}}/api/books
+Authorization: Bearer {{editorToken}}
+Content-Type: application/json
+
+{"title":"Clean Code","author":"Robert Martin"}
+
+### 04 Reader read [200]
+GET {{base}}/api/books/{{bookId}}
+Authorization: Bearer {{readerToken}}
+
+### 05 Editor update [200]
+PUT {{base}}/api/books/{{bookId}}
+Authorization: Bearer {{editorToken}}
+Content-Type: application/json
+
+{"title":"Updated","author":"Robert Martin"}
+
+### 06 Editor delete denied [403]
+DELETE {{base}}/api/books/{{bookId}}
+Authorization: Bearer {{editorToken}}
+
+### 07 Reader audit denied [403]
+GET {{base}}/api/audit
+Authorization: Bearer {{readerToken}}
+
+### 08 Admin audit [200]
+GET {{base}}/api/audit
+Authorization: Bearer {{adminToken}}
+
+### 09 Admin delete [204]
+DELETE {{base}}/api/books/{{bookId}}
+Authorization: Bearer {{adminToken}}
+
+### 10 Anonymous denied [401]
+GET {{base}}/api/books
+
+### All audit [200]
+GET {{base}}/api/audit
+Authorization: Bearer {{adminToken}}
+
+### One audit [200]
+GET {{base}}/api/audit/{{auditId}}
+Authorization: Bearer {{adminToken}}
+
+### By user [200]
+GET {{base}}/api/audit/user/editor
+Authorization: Bearer {{adminToken}}
+
+### By action [200]
+GET {{base}}/api/audit/action/CREATE
+Authorization: Bearer {{adminToken}}
+
+### By book [200]
+GET {{base}}/api/audit/book/{{bookId}}
+Authorization: Bearer {{adminToken}}
+

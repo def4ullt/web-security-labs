@@ -1,0 +1,64 @@
+@base = http://localhost:8080
+@user = admin
+@password = Admin123!
+@csrf = PASTE_CSRF_TOKEN
+@bookId = 1
+@auditId = 1
+@readerToken = PASTE_READER_JWT
+@editorToken = PASTE_EDITOR_JWT
+@adminToken = PASTE_ADMIN_JWT
+# Keep cookies enabled. Update bookId from the POST response.
+
+### 01 Reader list [200]
+GET {{base}}/basic/books
+Authorization: Basic reader Reader123!
+
+### 02 Reader create denied [403]
+POST {{base}}/basic/books
+Authorization: Basic reader Reader123!
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"title":"Clean Code","author":"Robert Martin"}
+
+### 03 Editor create [201]
+POST {{base}}/basic/books
+Authorization: Basic editor Editor123!
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"title":"Clean Code","author":"Robert Martin"}
+
+### 04 Reader read [200]
+GET {{base}}/basic/books/{{bookId}}
+Authorization: Basic reader Reader123!
+
+### 05 Editor update [200]
+PUT {{base}}/basic/books/{{bookId}}
+Authorization: Basic editor Editor123!
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"title":"Updated","author":"Robert Martin"}
+
+### 06 Editor delete denied [403]
+DELETE {{base}}/basic/books/{{bookId}}
+Authorization: Basic editor Editor123!
+X-CSRF-TOKEN: {{csrf}}
+
+### 07 Reader audit denied [403]
+GET {{base}}/basic/audit
+Authorization: Basic reader Reader123!
+
+### 08 Admin audit [200]
+GET {{base}}/basic/audit
+Authorization: Basic admin Admin123!
+
+### 09 Admin delete [204]
+DELETE {{base}}/basic/books/{{bookId}}
+Authorization: Basic admin Admin123!
+X-CSRF-TOKEN: {{csrf}}
+
+### 10 Anonymous denied [401]
+GET {{base}}/basic/books
+

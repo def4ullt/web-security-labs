@@ -1,0 +1,63 @@
+@base = http://localhost:8080
+@user = admin
+@password = Admin123!
+@csrf = PASTE_CSRF_TOKEN
+@bookId = 1
+@auditId = 1
+@readerToken = PASTE_READER_JWT
+@editorToken = PASTE_EDITOR_JWT
+@adminToken = PASTE_ADMIN_JWT
+# Keep cookies enabled. Update bookId from the POST response.
+
+### Get CSRF [200]
+GET {{base}}/basic/csrf
+Authorization: Basic {{user}} {{password}}
+
+### Create book [201]
+POST {{base}}/basic/books
+Authorization: Basic {{user}} {{password}}
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"title":"Clean Code","author":"Robert Martin"}
+
+### List books [200]
+GET {{base}}/basic/books
+Authorization: Basic {{user}} {{password}}
+
+### Read book [200]
+GET {{base}}/basic/books/{{bookId}}
+Authorization: Basic {{user}} {{password}}
+
+### Update book [200]
+PUT {{base}}/basic/books/{{bookId}}
+Authorization: Basic {{user}} {{password}}
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"title":"Clean Code Updated","author":"Robert Martin"}
+
+### Audit list [200]
+GET {{base}}/basic/audit
+Authorization: Basic {{user}} {{password}}
+
+### Audit user [200]
+GET {{base}}/basic/audit/user/admin
+Authorization: Basic {{user}} {{password}}
+
+### Audit book [200]
+GET {{base}}/basic/audit/book/{{bookId}}
+Authorization: Basic {{user}} {{password}}
+
+### Delete book [204]
+DELETE {{base}}/basic/books/{{bookId}}
+Authorization: Basic {{user}} {{password}}
+X-CSRF-TOKEN: {{csrf}}
+
+### Deleted book [404]
+GET {{base}}/basic/books/{{bookId}}
+Authorization: Basic {{user}} {{password}}
+
+### Anonymous list [401]
+GET {{base}}/basic/books
+
